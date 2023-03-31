@@ -324,6 +324,12 @@ class FollowViewsTest(TestCase):
                 kwargs={'username': test_user.username}
             ), follow=True
         )
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': test_user.username}
+            ), follow=True
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Follow.objects.count(), 1)
         follow = Follow.objects.first()
