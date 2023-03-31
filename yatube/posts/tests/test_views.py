@@ -228,43 +228,120 @@ class PostsViewTests(TestCase):
 
 class FollowViewsTest(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='Auth')
+        cls.follower = User.objects.create_user(username='Follower')
+        cls.following_author = User.objects.create_user(
+            username='Following_author'
+        )
+        cls.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test_slug',
+            description='Тестовое описание',
+        )
+        cls.group_2 = Group.objects.create(
+            title='Тестовая группа 2',
+            slug='test_slug_2',
+            description='Тестовое описание 2',
+        )
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text='Тестовое описание поста',
+            group=cls.group
+        )
+        cls.post_2 = Post.objects.create(
+            author=cls.user,
+            text='Тестовое описание поста 6',
+            group=cls.group_2
+        )
+
     def setUp(self):
-        self.user = User.objects.create_user(username='shrek')
-        self.follow_author = User.objects.create_user(username='fiona')
+        self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        self.authorized_client.force_login(self.follow_author)
-        self.post = Post.objects.create(
-            author=self.user,
-            text='Тестовое описание поста'
+        self.client_follower = Client()
+        self.client_follower.force_login(self.follower)
+        # self.user = User.objects.create_user(username='User1')
+        # self.follow_author = User.objects.create_user(username='User2')
+        # self.authorized_client = Client()
+        # self.authorized_client.force_login(self.user)
+        # self.authorized_client.force_login(self.follow_author)
+        # self.post = Post.objects.create(
+        #     author=self.user,
+        #     text='Тестовое описание поста'
+        # )
+
+    def test_follow_index_page(self):
+        """Новая запись появляется в ленте тех, кто на него подписан
+        И не появляется у тех, кто не подписан"""
+        self.client_follower.get(
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': self.following_author},
+            )
         )
+        Post.objects.create(
+            id=7,
+            author=self.following_author,
+            text='Тестовое текст 7',
+            group=self.group
+        )
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': self.follower},
+            )
+        )
+        Post.objects.create(
+            author=self.follower,
+            text='Тестовое текст 8',
+            group=self.group_2
+        )
+        follower_response = self.client_follower.get(
+            reverse('posts:follow_index')
+        )
+        first_object = follower_response.context['page_obj'][0]
+        self.assertEqual(first_object.author, self.following_author)
+        self.assertEqual(first_object.text, 'Тестовое текст 7')
+        self.assertEqual(first_object.id, 7)
+        non_follower_response = self.authorized_client.get(
+            reverse('posts:follow_index')
+        )
+        nf_first_object = non_follower_response.context['page_obj'][0]
+        self.assertEqual(nf_first_object.author, self.follower)
+        self.assertEqual(nf_first_object.text, 'Тестовое текст 8')
+        self.assertEqual(nf_first_object.id, 8)
 
     def test_authorized_client_can_follow(self):
         '''Проверка может ли подписываться авторизованный
         пользователь на автора.'''
+        test_user = User.objects.create_user(username='testovUser')
         response = self.authorized_client.get(
             reverse(
                 'posts:profile_follow',
-                kwargs={'username': self.user.username}
+                kwargs={'username': test_user.username}
             ), follow=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Follow.objects.count(), 1)
         follow = Follow.objects.first()
-        self.assertEqual(follow.user, self.follow_author)
-        self.assertEqual(follow.author, self.user)
+        self.assertEqual(follow.user, self.user)
+        self.assertEqual(follow.author, test_user)
 
     def test_authorized_client_unfollow_author(self):
         '''Авторизованный пользователь может удалять авторов из подписок.'''
         user = self.user
-        author = get_object_or_404(User, username=self.follow_author.username)
+        author = get_object_or_404(User,
+                                   username=self.following_author.username)
         if user != author:
             Follow.objects.get_or_create(user=self.user,
-                                         author=self.follow_author)
+                                         author=self.following_author)
         self.authorized_client.get(reverse(
             'posts:profile_unfollow',
-            kwargs={'username': self.follow_author.username}
+            kwargs={'username': self.following_author.username}
         ))
-        self.assertTrue(Follow.objects.filter(
-            user=self.user, author=self.follow_author
+        self.assertFalse(Follow.objects.filter(
+            user=self.user, author=self.following_author
         ).exists())
