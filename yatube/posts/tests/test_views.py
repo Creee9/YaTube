@@ -330,6 +330,20 @@ class FollowViewsTest(TestCase):
         self.assertEqual(follow.user, self.user)
         self.assertEqual(follow.author, test_user)
 
+    def test_authorized_client_follow_author(self):
+        self.client_follower.post(
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': self.user}
+            )
+        )
+        self.assertTrue(
+            Follow.objects.filter(
+                user=self.follower,
+                author=self.user
+            ).exists()
+        )
+
     def test_authorized_client_unfollow_author(self):
         '''Авторизованный пользователь может удалять авторов из подписок.'''
         user = self.user
