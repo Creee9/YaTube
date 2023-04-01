@@ -48,7 +48,7 @@ def group_posts(request, slug):
 # Страница пользователя
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    posts = Post.objects.all().filter(author=author)
+    posts = Post.objects.filter(author=author)
     page_obj = get_page_context(request, posts)
     if request.user.is_authenticated and Follow.objects.filter(
         user=request.user,
@@ -155,6 +155,10 @@ def profile_follow(request, username):
     # Подписаться на автора
     author = get_object_or_404(User, username=username)
     if author != request.user:
+        # в unfollow author__username=username сработало (там просто .filter),
+        # а тут так не получается (тут get_or_create)
+        # оно ждет объект класса user, а получает username
+        # либо я не понимаю
         Follow.objects.get_or_create(
             user=request.user,
             author=author,
@@ -168,12 +172,12 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     # Дизлайк, отписка
-    author = get_object_or_404(User, username=username)
+    # author = get_object_or_404(User, username=username)
     Follow.objects.filter(
         user=request.user,
-        author=author,
+        author__username=username,
     ).delete()
     return redirect(
         'posts:profile',
-        author.username
+        username
     )
