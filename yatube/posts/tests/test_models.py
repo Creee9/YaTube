@@ -26,15 +26,6 @@ class PostModelTest(TestCase):
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        # field_str = {
-        #     PostModelTest.group.__str__: 'Тестовая группа',
-        #     PostModelTest.post.__str__: '123456789012345',
-        # }
-        # for field, value in field_str.items():
-        #     with self.subTest(value=value):
-        #         self.assertEqual(
-        #             field(), value
-        #         )
         post = PostModelTest.post
         expected_text = post.text[:CHAR_COUNT]
         self.assertEqual(str(self.post), expected_text)
