@@ -41,11 +41,11 @@ Cоциальную сеть для публикации личных дневн
 
 ```bash
 # - Клонировать репозиторий:
-git clone https://github.com/cookievii/YaTube.git
+git clone https://github.com/Creee9/YaTube.git
 
 # - Cоздать и активировать виртуальное окружение:
 python3 -m venv venv
-source venv/bin/activate
+source venv/script/activate
 
 # - Установить зависимости из файла requirements.txt:
 python3 -m pip install --upgrade pip
@@ -62,16 +62,3 @@ python3 manage.py runserver
 ```
 
 ###### *Ссылка на проект: [доступна по ссылке](http://localhost:8000/)
-
-----------
-
-## Авторы:
-
-* **Валитов Ильмир Илсурович**
-  GitHub - [CoockieVii](https://github.com/cookievii)
-
-----------
-
-## MIT License:
-
-#### Copyright (c) 2022 [cookievii](https://github.com/cookievii)
