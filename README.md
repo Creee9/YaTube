@@ -61,4 +61,4 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-###### *Ссылка на проект: [доступна по ссылке](http://localhost:8000/)
+###### Проект будет доступен по ссылке: [доступна по ссылке](http://localhost:8000/)
