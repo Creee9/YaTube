@@ -44,21 +44,21 @@ Cоциальную сеть для публикации личных дневн
 git clone https://github.com/Creee9/YaTube.git
 
 # - Cоздать и активировать виртуальное окружение:
-python3 -m venv venv
-source venv/script/activate
+python -m venv venv
+source venv/Scripts/activate
 
 # - Установить зависимости из файла requirements.txt:
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 # - перейти в папку "api_yamdb":
 cd yatube/
 
 # - Выполнить миграции:
-python3 manage.py migrate
+python manage.py migrate
 
 # - Запустить проект:
-python3 manage.py runserver
+python manage.py runserver
 ```
 
 ###### *Ссылка на проект: [доступна по ссылке](http://localhost:8000/)
