@@ -1,6 +1,5 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-# from django.http import HttpResponse
 from .models import Post, Group, User, Follow
 from .forms import PostForm, CommentForm
 from django.contrib.auth.decorators import login_required
@@ -102,13 +101,9 @@ def post_create(request):
     return render(request, 'posts/create_post.html', {'form': form})
 
 
-# @login_required
 def post_edit(request, post_id):
     is_edit = True
     post = get_object_or_404(Post, pk=post_id)
-    # Понимаю, что можно было использовать @login_required
-    # просто в задании просили перенаправить нв post_detail
-    # если пользователь не авторизован
     if post.author != request.user:
         return redirect('posts:post_detail', post_id=post.pk)
     else:
@@ -141,7 +136,6 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    # информация о текущем пользователе доступна в переменной request.user
     posts = Post.objects.filter(author__following__user=request.user)
     page_obj = get_page_context(request, posts)
     context = {
@@ -152,13 +146,8 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # Подписаться на автора
     author = get_object_or_404(User, username=username)
     if author != request.user:
-        # в unfollow author__username=username сработало (там просто .filter),
-        # а тут так не получается (тут get_or_create)
-        # оно ждет объект класса user, а получает username
-        # либо я не понимаю
         Follow.objects.get_or_create(
             user=request.user,
             author=author,
@@ -171,8 +160,6 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    # Дизлайк, отписка
-    # author = get_object_or_404(User, username=username)
     Follow.objects.filter(
         user=request.user,
         author__username=username,
