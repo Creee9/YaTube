@@ -61,4 +61,4 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-###### Проект будет доступен по ссылке: [доступна по ссылке](http://localhost:8000/)
+###### Проект будет доступен по ссылке: [YaTube](http://localhost:8000/)
